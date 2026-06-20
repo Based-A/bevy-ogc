@@ -1,0 +1,8 @@
+[package]
+name = "bevy-ogc"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = { version = "0.16.0", default-features = false }
+ogc-rs = { path = "/home/adaml/Projects/repos/ogc-rs" }
