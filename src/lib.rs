@@ -4,15 +4,38 @@
 
 extern crate alloc;
 
+//mod ios;
+//mod error;
+//mod network;
+//mod audio
+//mod mp3;
+//mod console;
+//mod video;
+//mod debug;
+//mod utils;
+//mod gu;
+//mod runtime;
+mod gx;
+//mod asnd;
+//mod aesnd;
 mod input;
+//mod lwp;
+//mod mutex;
+//mod cache;
+//mod tpl;
+//mod time;
+//mod ffi;
+//mod mmio;
 
+pub use gx::*;
 pub use input::*;
 
 use bevy::app::plugin_group;
 
 plugin_group! {
-    /// This plugin group will add all the default plugins for a Bevy application using [`agb`].
+    /// This plugin group will add all the default plugins for a Bevy application using [`ogc-rs`].
     pub struct OgcPlugin {
         :OgcInputPlugin,
+        :OgcGxPlugin,
     }
 }
