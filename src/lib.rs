@@ -10,7 +10,6 @@ extern crate alloc;
 //mod audio
 //mod mp3;
 //mod console;
-//mod video;
 //mod debug;
 //mod utils;
 //mod gu;
@@ -26,15 +25,18 @@ mod input;
 //mod time;
 //mod ffi;
 //mod mmio;
+mod runner;
 
 pub use gx::*;
 pub use input::*;
+pub use runner::*;
 
 use bevy::app::plugin_group;
 
 plugin_group! {
     /// This plugin group will add all the default plugins for a Bevy application using [`ogc-rs`].
     pub struct OgcPlugin {
+        :OgcRunnerPlugin,
         :OgcInputPlugin,
         :OgcGxPlugin,
     }

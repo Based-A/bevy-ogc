@@ -1,9 +1,5 @@
 use bevy::{
-    input::gamepad::{
-        GamepadAxisChangedEvent, GamepadButtonChangedEvent, GamepadButtonStateChangedEvent,
-        GamepadConnection, GamepadConnectionEvent, GamepadEvent, RawGamepadAxisChangedEvent,
-        RawGamepadButtonChangedEvent, RawGamepadEvent,
-    },
+    input::gamepad::{RawGamepadAxisChangedEvent, RawGamepadButtonChangedEvent, RawGamepadEvent},
     prelude::*,
 };
 
@@ -14,56 +10,20 @@ pub struct OgcInputPlugin;
 
 impl Plugin for OgcInputPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<GamepadEvent>()
-            .add_event::<GamepadConnectionEvent>()
-            .add_event::<GamepadButtonChangedEvent>()
-            .add_event::<GamepadButtonStateChangedEvent>()
-            .add_event::<GamepadAxisChangedEvent>()
-            .add_event::<RawGamepadEvent>()
-            .add_event::<RawGamepadAxisChangedEvent>()
-            .add_event::<RawGamepadButtonChangedEvent>()
-            .add_systems(PreUpdate, update_controllers);
-    }
-
-    fn finish(&self, app: &mut App) {
-        let world = app.world_mut();
-
-        // Spawn in all 4 controller entities.
-        // TODO: Maybe these shouldn't all be added at once?
-        let controllers: Vec<Entity> = world
-            .spawn_batch([
-                OgcController::new(ControllerType::Gamecube, 0),
-                OgcController::new(ControllerType::Gamecube, 1),
-                OgcController::new(ControllerType::Gamecube, 2),
-                OgcController::new(ControllerType::Gamecube, 3),
-            ])
-            .collect();
-
-        let mut controller_connections: Vec<GamepadConnectionEvent> = Vec::new();
-
-        // Iterate over connected controllers and created the connections events.
-        for (place, controller) in controllers.iter().enumerate() {
-            controller_connections.push(GamepadConnectionEvent {
-                gamepad: *controller,
-                connection: GamepadConnection::Connected {
-                    name: format!("Gamecube Controller {}", place + 1),
-                    vendor_id: None,
-                    product_id: None,
-                },
-            });
-        }
-
-        // Send connection events.
-        world.send_event_batch::<GamepadConnectionEvent>(controller_connections);
+        app.add_systems(PreUpdate, update_controllers);
     }
 }
 
 /// Check the buttons and stick inputs from all controllers.
+/// This system runs in the PreUpdate schedule, and reads inputs from
+/// the OGC controller before then writing them to every Gamepad in
+/// Bevy for use in the Update schedule.
+/// TODO: Rumble?
 fn update_controllers(
-    controller_q: Query<(Entity, &OgcController), With<ActiveController>>,
-    mut events: EventWriter<RawGamepadEvent>,
-    mut button_events: EventWriter<RawGamepadButtonChangedEvent>,
-    mut stick_events: EventWriter<RawGamepadAxisChangedEvent>,
+    controller_q: Query<(Entity, &OgcController)>,
+    mut events: MessageWriter<RawGamepadEvent>,
+    mut button_events: MessageWriter<RawGamepadButtonChangedEvent>,
+    mut stick_events: MessageWriter<RawGamepadAxisChangedEvent>,
 ) {
     Input::update(ControllerType::Gamecube);
     Input::update(ControllerType::Wii);
@@ -175,10 +135,6 @@ impl OgcController {
         Self(ogc_rs::input::Input::new(controller_type, port_num))
     }
 }
-
-/// Marker component to indicate that a controller has been activated.
-#[derive(Component)]
-pub struct ActiveController;
 
 trait OgcStick {
     // Conversion from Ogc Stick to a Bevy Stick

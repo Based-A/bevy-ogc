@@ -3,6 +3,11 @@ name = "bevy-ogc"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "bevy_ogc"
+test = false
+bench = false
+
 [dependencies]
-bevy = { version = "0.16.0", default-features = false }
+bevy = { version = "0.19", default-features = false, features = ["default_no_std", "gamepad"]}
 ogc-rs = { path = "/home/adaml/Projects/repos/ogc-rs" }
