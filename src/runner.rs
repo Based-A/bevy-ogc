@@ -1,32 +1,23 @@
 use bevy::{app::PluginsState, prelude::*};
 
 use ogc_rs::prelude::*;
+use ogc_rs::video::Video;
 
+/// A custom runner that sets up the various OGC components needed to run on the hardware.
 #[derive(Default)]
 pub struct OgcRunnerPlugin;
 
 impl Plugin for OgcRunnerPlugin {
     fn build(&self, app: &mut App) {
         app.set_runner(|mut app| {
-            let video = Video::init();
-            let mut asnd = Asnd::init();
-
-            Input::init(ControllerType::Gamecube);
-            Input::init(ControllerType::Wii);
-
-            Console::init(&video);
-            Video::configure(&video.render_config);
-            unsafe {
-                Video::set_next_framebuffer(video.framebuffer);
-            }
-            Video::set_black(false);
-            Video::flush();
-
+            // Wait for Plugins to be added to the app.
             while app.plugins_state() == PluginsState::Adding {}
 
+            // Call the remaining steps of all Plugins.
             app.finish();
             app.cleanup();
 
+            // Begin the application loop.
             loop {
                 app.update();
 
@@ -34,6 +25,7 @@ impl Plugin for OgcRunnerPlugin {
                     return exit;
                 }
 
+                // Wait on the hardware to reach VSync before starting the next frame loop.
                 Video::wait_vsync();
             }
         });

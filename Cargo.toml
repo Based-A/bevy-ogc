@@ -10,4 +10,4 @@ bench = false
 
 [dependencies]
 bevy = { version = "0.19", default-features = false, features = ["default_no_std", "gamepad"]}
-ogc-rs = { path = "/home/adaml/Projects/repos/ogc-rs" }
+ogc-rs = { path = "/home/adaml/Projects/repos/ogc-rs", features = ["ffi"] }
